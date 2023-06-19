@@ -1,8 +1,9 @@
 const { clamp } = require('./utils');
 
 type Target = HTMLElement[] | HTMLElement | string;
+type Direction = '' | 'Bottom' | 'Right' | 'BottomRight';
 type ResizoxOptions = {
-  resizeOutlineWidth?: number,
+  resizeOutlineSize?: number,
   minWidth?: number,
   maxWidth?: number,
   minHeight?: number,
@@ -11,12 +12,12 @@ type ResizoxOptions = {
 interface ResizoxElement extends HTMLElement {
   _resizoxOptions?: ResizoxOptions,
   _resizoxData?: {
-    direction?: '' | 'Bottom' | 'Right' | 'BottomRight',
+    direction?: Direction,
   }
 }
 
 const defaultOptions: ResizoxOptions = {
-  resizeOutlineWidth: 10,
+  resizeOutlineSize: 15,
   minWidth: 50,
   maxWidth: 2000,  
   minHeight: 50,
@@ -25,25 +26,71 @@ const defaultOptions: ResizoxOptions = {
 
 let currentlyResizedElement: ResizoxElement | null = null;
 
-function onPointerDown(event: PointerEvent) {
+const hasUserMouse = matchMedia('(pointer: fine)').matches;
+const style = document.createElement('style');
+style.id = 'resizox-style-element';
+if(hasUserMouse) {
+  document.head.append(style);
+}
+
+function getDirection(event: MouseEvent): Direction {
   const target = <ResizoxElement>event.target;
 
   if(!target._resizoxOptions || !target._resizoxData) {
-    return;
+    return '';
   }
   
   const { offsetX, offsetY } = event;
-  const outlineWidth = Number(target._resizoxOptions?.resizeOutlineWidth);
+  const outlineSize = Number(target._resizoxOptions?.resizeOutlineSize);
   const targetRect = target.getBoundingClientRect();
 
-  target._resizoxData.direction = '';
+  let direction: Direction = '';
 
-  if(offsetY >= targetRect.height - outlineWidth) {
-    target._resizoxData.direction += 'Bottom';
+  if(offsetY >= targetRect.height - outlineSize) {
+    direction = 'Bottom';
   }
-  if(offsetX >= targetRect.width - outlineWidth) {
-    target._resizoxData.direction += 'Right';
+  if(offsetX >= targetRect.width - outlineSize) {
+    direction = (direction === 'Bottom') ? 'BottomRight' : 'Right';
   }
+
+  return direction;
+}
+
+function getCursorStyle(direction: Direction): string {
+  const map = {
+    '': '',
+    'Bottom': 's',
+    'Right': 'e',
+    'BottomRight': 'se',
+  };
+
+  const mapped = map[direction];
+  return mapped && `* { cursor: ${mapped}-resize !important; }`;
+}
+
+function onMouseMove(event: MouseEvent) {
+  if(!currentlyResizedElement) {
+    style.innerHTML = getCursorStyle(getDirection(event));
+
+    window.removeEventListener('mousemove', onMouseMove);
+    console.log('removing')
+
+    if(event.currentTarget !== window) {
+      console.log('adding')
+      window.addEventListener('mousemove', onMouseMove);
+      event.stopPropagation();
+    }
+  }
+}
+
+function onPointerDown(event: PointerEvent) {
+  const target = <ResizoxElement>event.target;
+
+  if(!target._resizoxData) {
+    return;
+  }
+
+  target._resizoxData.direction = getDirection(event);
   
   if(target._resizoxData.direction) {
     currentlyResizedElement = target;
@@ -76,6 +123,7 @@ function onPointerMove(event: PointerEvent) {
 }
 
 function onPointerUp(event: PointerEvent) {
+  currentlyResizedElement = null;
   window.removeEventListener('pointermove', onPointerMove);
   window.removeEventListener('pointerup', onPointerUp);
 }
@@ -99,6 +147,9 @@ function makeResizable(target: Target, options: ResizoxOptions = {}): void {
     element._resizoxOptions = usedOptions;
     element._resizoxData = {};
     element.addEventListener('pointerdown', onPointerDown);
+    if(hasUserMouse) {
+      element.addEventListener('mousemove', onMouseMove);
+    }
   }
 }
 

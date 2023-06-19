@@ -1,28 +1,64 @@
 "use strict";
 const { clamp } = require('./utils');
 const defaultOptions = {
-    resizeOutlineWidth: 10,
+    resizeOutlineSize: 15,
     minWidth: 50,
     maxWidth: 2000,
     minHeight: 50,
     maxHeight: 1400,
 };
 let currentlyResizedElement = null;
-function onPointerDown(event) {
+const hasUserMouse = matchMedia('(pointer: fine)').matches;
+const style = document.createElement('style');
+style.id = 'resizox-style-element';
+if (hasUserMouse) {
+    document.head.append(style);
+}
+function getDirection(event) {
     const target = event.target;
     if (!target._resizoxOptions || !target._resizoxData) {
-        return;
+        return '';
     }
     const { offsetX, offsetY } = event;
-    const outlineWidth = Number(target._resizoxOptions?.resizeOutlineWidth);
+    const outlineSize = Number(target._resizoxOptions?.resizeOutlineSize);
     const targetRect = target.getBoundingClientRect();
-    target._resizoxData.direction = '';
-    if (offsetY >= targetRect.height - outlineWidth) {
-        target._resizoxData.direction += 'Bottom';
+    let direction = '';
+    if (offsetY >= targetRect.height - outlineSize) {
+        direction = 'Bottom';
     }
-    if (offsetX >= targetRect.width - outlineWidth) {
-        target._resizoxData.direction += 'Right';
+    if (offsetX >= targetRect.width - outlineSize) {
+        direction = (direction === 'Bottom') ? 'BottomRight' : 'Right';
     }
+    return direction;
+}
+function getCursorStyle(direction) {
+    const map = {
+        '': '',
+        'Bottom': 's',
+        'Right': 'e',
+        'BottomRight': 'se',
+    };
+    const mapped = map[direction];
+    return mapped && `* { cursor: ${mapped}-resize !important; }`;
+}
+function onMouseMove(event) {
+    if (!currentlyResizedElement) {
+        style.innerHTML = getCursorStyle(getDirection(event));
+        window.removeEventListener('mousemove', onMouseMove);
+        console.log('removing');
+        if (event.currentTarget !== window) {
+            console.log('adding');
+            window.addEventListener('mousemove', onMouseMove);
+            event.stopPropagation();
+        }
+    }
+}
+function onPointerDown(event) {
+    const target = event.target;
+    if (!target._resizoxData) {
+        return;
+    }
+    target._resizoxData.direction = getDirection(event);
     if (target._resizoxData.direction) {
         currentlyResizedElement = target;
         window.addEventListener('pointermove', onPointerMove);
@@ -49,6 +85,7 @@ function onPointerMove(event) {
     }
 }
 function onPointerUp(event) {
+    currentlyResizedElement = null;
     window.removeEventListener('pointermove', onPointerMove);
     window.removeEventListener('pointerup', onPointerUp);
 }
@@ -68,6 +105,9 @@ function makeResizable(target, options = {}) {
         element._resizoxOptions = usedOptions;
         element._resizoxData = {};
         element.addEventListener('pointerdown', onPointerDown);
+        if (hasUserMouse) {
+            element.addEventListener('mousemove', onMouseMove);
+        }
     }
 }
 module.exports = {
