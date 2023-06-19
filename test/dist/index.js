@@ -2,7 +2,7 @@
 "use strict";
 const { clamp } = require('./utils');
 const defaultOptions = {
-    resizeOutlineSize: 15,
+    outlineSize: 15,
     minWidth: 50,
     maxWidth: 2000,
     minHeight: 50,
@@ -21,7 +21,7 @@ function getDirection(event) {
         return '';
     }
     const { offsetX, offsetY } = event;
-    const outlineSize = Number(target._resizoxOptions?.resizeOutlineSize);
+    const outlineSize = Number(target._resizoxOptions?.outlineSize);
     const targetRect = target.getBoundingClientRect();
     let direction = '';
     if (offsetY >= targetRect.height - outlineSize) {

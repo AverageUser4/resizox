@@ -3,7 +3,7 @@ const { clamp } = require('./utils');
 type Target = HTMLElement[] | HTMLElement | string;
 type Direction = '' | 'Bottom' | 'Right' | 'BottomRight';
 type ResizoxOptions = {
-  resizeOutlineSize?: number,
+  outlineSize?: number,
   minWidth?: number,
   maxWidth?: number,
   minHeight?: number,
@@ -17,7 +17,7 @@ interface ResizoxElement extends HTMLElement {
 }
 
 const defaultOptions: ResizoxOptions = {
-  resizeOutlineSize: 15,
+  outlineSize: 15,
   minWidth: 50,
   maxWidth: 2000,  
   minHeight: 50,
@@ -27,10 +27,10 @@ const defaultOptions: ResizoxOptions = {
 let currentlyResizedElement: ResizoxElement | null = null;
 
 const hasUserMouse = matchMedia('(pointer: fine)').matches;
-const style = document.createElement('style');
-style.id = 'resizox-style-element';
+const cursorStyle = document.createElement('style');
+cursorStyle.id = 'resizox-style-element';
 if(hasUserMouse) {
-  document.head.append(style);
+  document.head.append(cursorStyle);
 }
 
 function getDirection(event: MouseEvent): Direction {
@@ -41,7 +41,7 @@ function getDirection(event: MouseEvent): Direction {
   }
   
   const { offsetX, offsetY } = event;
-  const outlineSize = Number(target._resizoxOptions?.resizeOutlineSize);
+  const outlineSize = Number(target._resizoxOptions?.outlineSize);
   const targetRect = target.getBoundingClientRect();
 
   let direction: Direction = '';
@@ -70,7 +70,7 @@ function getCursorStyle(direction: Direction): string {
 
 function onMouseMove(event: MouseEvent) {
   if(!currentlyResizedElement) {
-    style.innerHTML = getCursorStyle(getDirection(event));
+    cursorStyle.innerHTML = getCursorStyle(getDirection(event));
 
     window.removeEventListener('mousemove', onMouseMove);
 
@@ -142,6 +142,8 @@ function makeResizable(target: Target, options: ResizoxOptions = {}): void {
   }
 
   for(let element of usedElements) {
+    element.style.padding = `${usedOptions.outlineSize}px`;
+    element.style.boxSizing = 'border-box';
     element._resizoxOptions = usedOptions;
     element._resizoxData = {};
     element.addEventListener('pointerdown', onPointerDown);

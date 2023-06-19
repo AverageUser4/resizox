@@ -1,1 +1,0 @@
-- wrapper element has to have box sizing: border box if it uses padding

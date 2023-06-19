@@ -1,7 +1,7 @@
 "use strict";
 const { clamp } = require('./utils');
 const defaultOptions = {
-    resizeOutlineSize: 15,
+    outlineSize: 15,
     minWidth: 50,
     maxWidth: 2000,
     minHeight: 50,
@@ -9,10 +9,10 @@ const defaultOptions = {
 };
 let currentlyResizedElement = null;
 const hasUserMouse = matchMedia('(pointer: fine)').matches;
-const style = document.createElement('style');
-style.id = 'resizox-style-element';
+const cursorStyle = document.createElement('style');
+cursorStyle.id = 'resizox-style-element';
 if (hasUserMouse) {
-    document.head.append(style);
+    document.head.append(cursorStyle);
 }
 function getDirection(event) {
     const target = event.target;
@@ -20,7 +20,7 @@ function getDirection(event) {
         return '';
     }
     const { offsetX, offsetY } = event;
-    const outlineSize = Number(target._resizoxOptions?.resizeOutlineSize);
+    const outlineSize = Number(target._resizoxOptions?.outlineSize);
     const targetRect = target.getBoundingClientRect();
     let direction = '';
     if (offsetY >= targetRect.height - outlineSize) {
@@ -43,11 +43,9 @@ function getCursorStyle(direction) {
 }
 function onMouseMove(event) {
     if (!currentlyResizedElement) {
-        style.innerHTML = getCursorStyle(getDirection(event));
+        cursorStyle.innerHTML = getCursorStyle(getDirection(event));
         window.removeEventListener('mousemove', onMouseMove);
-        console.log('removing');
         if (event.currentTarget !== window) {
-            console.log('adding');
             window.addEventListener('mousemove', onMouseMove);
             event.stopPropagation();
         }
@@ -102,6 +100,8 @@ function makeResizable(target, options = {}) {
         usedElements = target;
     }
     for (let element of usedElements) {
+        element.style.padding = `${usedOptions.outlineSize}px`;
+        element.style.boxSizing = 'border-box';
         element._resizoxOptions = usedOptions;
         element._resizoxData = {};
         element.addEventListener('pointerdown', onPointerDown);
