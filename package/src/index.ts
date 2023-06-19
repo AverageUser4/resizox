@@ -73,10 +73,8 @@ function onMouseMove(event: MouseEvent) {
     style.innerHTML = getCursorStyle(getDirection(event));
 
     window.removeEventListener('mousemove', onMouseMove);
-    console.log('removing')
 
     if(event.currentTarget !== window) {
-      console.log('adding')
       window.addEventListener('mousemove', onMouseMove);
       event.stopPropagation();
     }
