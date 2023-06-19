@@ -1,0 +1,25 @@
+{
+  "name": "resizox",
+  "version": "1.0.0",
+  "description": "Resizing. Redefined.",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AverageUser4/resizox.git"
+  },
+  "keywords": [
+    "resize"
+  ],
+  "author": "Kacper",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AverageUser4/resizox/issues"
+  },
+  "homepage": "https://github.com/AverageUser4/resizox#readme",
+  "devDependencies": {
+    "@types/node": "^20.3.1"
+  }
+}

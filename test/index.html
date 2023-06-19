@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resizox</title>
+  <style>
+    * { color-scheme: dark; }
+    body {
+      background-color: #111;
+    }
+    .resizable {
+      width: 200px;
+      height: 200px;
+      padding: 10px;
+      background-color: cyan;
+      /* border: 10px solid red; */
+
+      position: relative;
+
+      box-sizing: border-box;
+    }
+  </style>
+  <script type="module" src="dist/index.js"></script>
+</head>
+<body>
+  
+  <div class="resizable">
+    <button>click me!</button>
+  </div>
+
+</body>
+</html>

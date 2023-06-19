@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "resizox": "file:package"
+  }
+}
