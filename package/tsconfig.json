@@ -4,6 +4,8 @@
     "rootDir":"src",
     "outDir":"dist",
     "strict": true,
-    "module": "CommonJS"
+    "module": "CommonJS",
+    "declaration": true,
+    "declarationDir": "./declarations"
   }
 }

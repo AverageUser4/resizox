@@ -14,11 +14,11 @@ resizox.makeResizable([document.querySelector('#resizable'), document.querySelec
 
 Add Options:
 ```
-resizox.makeResizable('.resizable', { minWidth: 500, outlineSize: 30 });
+resizox.makeResizable('.resizable', { minWidth: 500, barSize: 30 });
 ```
 
 Possible Options:
-  - outlineSize (number): size of the area near borders that triggers resizing
+  - barSize (number): size of the area near borders that triggers resizing
   - minWidth (number),
   - maxWidth (number),  
   - minHeight (number),
@@ -26,5 +26,4 @@ Possible Options:
 
 Note:
   - element passed to makeResizable() will be referred to as container
-  - setting certain styles on container may break resizing (eg. borders)
   - this package will get improved significantly, so feel free to use it in production

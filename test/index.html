@@ -6,37 +6,27 @@
   <title>Resizox</title>
   <style>
     * { color-scheme: dark; }
+    .container {
+      display: flex;
+      gap: 32px;
+
+      padding: 64px;
+    }
     body {
       background-color: #111;
-      /* margin: 200px; */
-      height: 120vh;
+      min-height: 100vh;
     }
     .resizable {
-      width: 200px;
-      height: 200px;
-      padding: 10px;
+      width: 100px;
+      height: 100px;
       background-color: cyan;
-      /* border: 10px solid red; */
-
-      /* max-width: 100%; */
-      /* max-height: 100%; */
-
-      position: relative;
-
-      box-sizing: border-box;
     }
   </style>
-  <script type="module" src="dist/index.js"></script>
+  <script type="module" src="dist/bundle.js"></script>
 </head>
 <body>
   
-  <div class="resizable">
-    <button>click me!</button>
-  </div>
-
-  <div style="position: fixed; top: 200px; left: 200px;" class="resizable">
-    <button>click me!</button>
-  </div>
+  <div class="container"></div>
 
 </body>
 </html>

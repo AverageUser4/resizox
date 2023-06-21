@@ -1,95 +1,19 @@
 "use strict";
-const { clamp } = require('./utils');
-const defaultOptions = {
-    outlineSize: 15,
-    minWidth: 50,
-    maxWidth: 2000,
-    minHeight: 50,
-    maxHeight: 1400,
-};
-let currentlyResizedElement = null;
-const hasUserMouse = matchMedia('(pointer: fine)').matches;
-const cursorStyle = document.createElement('style');
-cursorStyle.id = 'resizox-style-element';
-if (hasUserMouse) {
-    document.head.append(cursorStyle);
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.makeResizable = void 0;
+const event_listeners_1 = require("./misc/event-listeners");
+const data_1 = require("./misc/data");
+const style_1 = require("./misc/style");
+const utils_1 = require("./utils/utils");
+if (data_1.canUserHover) {
+    document.head.append(data_1.cursorStyle);
 }
-function getDirection(event) {
-    const target = event.target;
-    if (!target._resizoxOptions || !target._resizoxData) {
-        return '';
-    }
-    const { offsetX, offsetY } = event;
-    const outlineSize = Number(target._resizoxOptions?.outlineSize);
-    const targetRect = target.getBoundingClientRect();
-    let direction = '';
-    if (offsetY >= targetRect.height - outlineSize) {
-        direction = 'Bottom';
-    }
-    if (offsetX >= targetRect.width - outlineSize) {
-        direction = (direction === 'Bottom') ? 'BottomRight' : 'Right';
-    }
-    return direction;
-}
-function getCursorStyle(direction) {
-    const map = {
-        '': '',
-        'Bottom': 's',
-        'Right': 'e',
-        'BottomRight': 'se',
-    };
-    const mapped = map[direction];
-    return mapped && `* { cursor: ${mapped}-resize !important; }`;
-}
-function onMouseMove(event) {
-    if (!currentlyResizedElement) {
-        cursorStyle.innerHTML = getCursorStyle(getDirection(event));
-        window.removeEventListener('mousemove', onMouseMove);
-        if (event.currentTarget !== window) {
-            window.addEventListener('mousemove', onMouseMove);
-            event.stopPropagation();
-        }
-    }
-}
-function onPointerDown(event) {
-    const target = event.target;
-    if (!target._resizoxData) {
-        return;
-    }
-    target._resizoxData.direction = getDirection(event);
-    if (target._resizoxData.direction) {
-        currentlyResizedElement = target;
-        window.addEventListener('pointermove', onPointerMove);
-        window.addEventListener('pointerup', onPointerUp);
-    }
-}
-function onPointerMove(event) {
-    if (currentlyResizedElement) {
-        const { clientX, clientY } = event;
-        const target = currentlyResizedElement;
-        const targetRect = target.getBoundingClientRect();
-        if (!target._resizoxOptions || !target._resizoxData) {
-            return;
-        }
-        const options = { ...defaultOptions, ...target._resizoxOptions };
-        if (target._resizoxData.direction?.includes('Right')) {
-            const newWidth = clamp(options.minWidth, clientX - targetRect.x, options.maxWidth);
-            target.style.width = `${newWidth}px`;
-        }
-        if (target._resizoxData.direction?.includes('Bottom')) {
-            const newHeight = clamp(options.minHeight, clientY - targetRect.y, options.maxHeight);
-            target.style.height = `${newHeight}px`;
-        }
-    }
-}
-function onPointerUp(event) {
-    currentlyResizedElement = null;
-    window.removeEventListener('pointermove', onPointerMove);
-    window.removeEventListener('pointerup', onPointerUp);
-}
+const generalStyle = document.createElement('style');
+document.head.append(generalStyle);
+generalStyle.innerHTML = (0, style_1.getGeneralStyle)(data_1.defaultOptions);
 function makeResizable(target, options = {}) {
     let usedElements;
-    const usedOptions = { ...defaultOptions, ...options };
+    const usedOptions = { ...data_1.defaultOptions, ...options };
     if (typeof target === 'string') {
         usedElements = [...document.querySelectorAll(target)];
     }
@@ -100,16 +24,17 @@ function makeResizable(target, options = {}) {
         usedElements = target;
     }
     for (let element of usedElements) {
-        element.style.padding = `${usedOptions.outlineSize}px`;
-        element.style.boxSizing = 'border-box';
-        element._resizoxOptions = usedOptions;
-        element._resizoxData = {};
-        element.addEventListener('pointerdown', onPointerDown);
-        if (hasUserMouse) {
-            element.addEventListener('mousemove', onMouseMove);
+        element.classList.add('resizox-container');
+        element.append(...(0, utils_1.getBars)(usedOptions));
+        if (usedOptions.isConstrained) {
+            element.style.maxWidth = '100%';
+            element.style.maxHeight = '100%';
         }
+        element._resizoxOptions = usedOptions;
+        element._resizoxData = {
+            offset: { x: 0, y: 0 },
+        };
+        element.addEventListener('pointerdown', event_listeners_1.onPointerDown);
     }
 }
-module.exports = {
-    makeResizable,
-};
+exports.makeResizable = makeResizable;
