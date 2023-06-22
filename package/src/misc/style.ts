@@ -15,7 +15,7 @@ export function getGeneralStyle(defaultOptions: ResizoxOptions): string {
       left: 0;
       bottom: calc(0px - var(--bar-offset, 0px));
       
-      width: 100%;
+      width: calc(100% + var(--bar-offset, 0px));
       height: var(--bar-size, ${defaultOptions.barSize}px);
   
       cursor: s-resize;
@@ -25,7 +25,7 @@ export function getGeneralStyle(defaultOptions: ResizoxOptions): string {
       top: 0;
       
       width: var(--bar-size, ${defaultOptions.barSize}px);
-      height: 100%;
+      height: calc(100% + var(--bar-offset, 0px));
   
       cursor: e-resize;
     }

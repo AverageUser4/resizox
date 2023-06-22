@@ -24,12 +24,11 @@ function makeResizable(target, options = {}) {
         usedElements = target;
     }
     for (let element of usedElements) {
+        const rect = element.getBoundingClientRect();
+        element.style.width = `${(0, utils_1.clamp)(usedOptions.minWidth, rect.width, usedOptions.maxWidth)}px`;
+        element.style.height = `${(0, utils_1.clamp)(usedOptions.minHeight, rect.height, usedOptions.maxHeight)}px`;
         element.classList.add('resizox-container');
         element.append(...(0, utils_1.getBars)(usedOptions));
-        if (usedOptions.isConstrained) {
-            element.style.maxWidth = '100%';
-            element.style.maxHeight = '100%';
-        }
         element._resizoxOptions = usedOptions;
         element._resizoxData = { type: 'container' };
         element.addEventListener('pointerdown', event_listeners_1.onPointerDown);

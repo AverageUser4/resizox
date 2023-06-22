@@ -8,7 +8,8 @@
     * { color-scheme: dark; }
     .container {
       display: flex;
-      gap: 32px;
+      gap: 128px;
+      flex-wrap: wrap;
 
       padding: 64px;
     }
@@ -20,6 +21,12 @@
       width: 100px;
       height: 100px;
       background-color: #888;
+    }
+    .wrapper {
+      width: 200px;
+      height: 200px;
+      background-color: hotpink;
+      flex: 0 0 auto;
     }
   </style>
   <script type="module" src="dist/bundle.js"></script>

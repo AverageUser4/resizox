@@ -1,6 +1,6 @@
 import { ResizoxBarElement, type ResizoxContainerElement } from "./types";
 import { resizedElement, defaultOptions, cursorStyle, canUserHover } from "./data";
-import { getCursorStyle, getDirection, clamp } from "../utils/utils";
+import { getCursorStyle, getDirection, clamp, getConstrainedSize } from "../utils/utils";
 
 export function onPointerDown(event: PointerEvent) {
   const currentTarget = <ResizoxContainerElement>event.currentTarget;
@@ -26,14 +26,19 @@ export function onPointerDown(event: PointerEvent) {
 
 export function onPointerMove(event: PointerEvent) {
   if(!resizedElement.current) {
-    console.error('resizedElement.current should always be set here.');
+    console.error('ResizoxError: resizedElement.current should always be set here.');
     return;
   }
 
   const { clientX, clientY } = event;
   const target = resizedElement.current;
   const targetRect = target.getBoundingClientRect();
+  const parentRect = target.parentElement?.getBoundingClientRect();
 
+  if(!parentRect) {
+    console.error('ResizoxError: resized element should always have parent element (this should not happen).')
+    return;
+  }
   if(!target._resizoxOptions || !target._resizoxData) {
     console.error('ResizoxError: _resizoxData and _resizoxOptions should always be set here.');
     return;
@@ -45,15 +50,15 @@ export function onPointerMove(event: PointerEvent) {
   if(target._resizoxData.currentDirection?.includes('Right')) {
     let newWidth = clientX - targetRect.x;
     newWidth += (barSize - (target._resizoxData.offset?.x || 0));
-    newWidth -= barOffset
-    newWidth = clamp(options.minWidth, newWidth, options.maxWidth);
+    newWidth -= barOffset;
+    newWidth = getConstrainedSize(target, newWidth, 'Width', options);
     target.style.width = `${newWidth}px`;
   }
   if(target._resizoxData.currentDirection?.includes('Bottom')) {
     let newHeight = clientY - targetRect.y;
     newHeight += (barSize - (target._resizoxData.offset?.y || 0));
     newHeight -= barOffset;
-    newHeight = clamp(options.minHeight, newHeight, options.maxHeight);
+    newHeight = getConstrainedSize(target, newHeight, 'Height', options);
     target.style.height = `${newHeight}px`;
   }
 }

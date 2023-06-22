@@ -1,4 +1,4 @@
-import { type ResizoxOptions, type ResizoxContainerElement, type Direction, type ResizoxBarElement } from "../misc/types";
+import { type ResizoxOptions, type ResizoxContainerElement, type Direction, type ResizoxBarElement, ResizoxRequiredOptions } from "../misc/types";
 
 export function clamp(min: number, actual: number, max: number): number {
   return Math.max(Math.min(actual, max), min);
@@ -47,4 +47,24 @@ export function getCursorStyle(direction: Direction): string {
 
   const mapped = map[direction];
   return mapped && `* { cursor: ${mapped}-resize !important; }`;
+}
+
+export function getConstrainedSize(target: ResizoxContainerElement, size: number, sizeType: 'Width' | 'Height', options: ResizoxRequiredOptions): number {
+  const targetRect = target.getBoundingClientRect();
+  const parentRect = target.parentElement?.getBoundingClientRect();
+
+  if(!parentRect) {
+    console.error('ResizoxError: parentRect should always be set here.');
+    return 0;
+  }
+
+  let coord: 'x' | 'y' = sizeType === 'Width' ? 'x' : 'y';
+
+  size = clamp(options[`min${sizeType}`], size, options[`max${sizeType}`]);
+  if(options.isConstrained) {
+    size = Math.min(size, parentRect[<'width' | 'height'>sizeType.toLowerCase()] - 
+      (targetRect[coord] - parentRect[coord]));
+  }
+
+  return size;
 }
