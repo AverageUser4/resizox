@@ -1,4 +1,4 @@
-import { type ResizoxRequiredOptions, type ResizoxElement } from "./types";
+import { type ResizoxRequiredOptions, type ResizoxContainerElement } from "./types";
 
 export const defaultOptions: ResizoxRequiredOptions = {
   barSize: 15,
@@ -9,9 +9,10 @@ export const defaultOptions: ResizoxRequiredOptions = {
   maxHeight: 1400,
   isConstrained: false,
   directions: 'Basic',
+  _debug_isShowBars: false,
 };
 
-export const resizedElement: { current: ResizoxElement | null } = { current: null };
+export const resizedElement: { current: ResizoxContainerElement | null } = { current: null };
 
 export const canUserHover = matchMedia('(any-hover: hover)').matches;
 export const cursorStyle = document.createElement('style');

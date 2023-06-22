@@ -13,12 +13,14 @@ export type ResizoxOptions = {
   maxHeight?: number,
   isConstrained?: boolean,
   directions?: NonEmptyDirection[] | 'Basic' | 'All',
+  _debug_isShowBars?: boolean,
 };
 export type ResizoxRequiredOptions = Concrete<ResizoxOptions>;
-export interface ResizoxElement extends HTMLElement {
+export interface ResizoxContainerElement extends HTMLElement {
   _resizoxOptions?: ResizoxOptions,
   _resizoxData?: {
-    direction?: Direction,
+    type: 'container',
+    currentDirection?: Direction,
     offset?: {
       x: number,
       y: number
@@ -27,6 +29,7 @@ export interface ResizoxElement extends HTMLElement {
 }
 export interface ResizoxBarElement extends HTMLElement {
   _resizoxData?: {
+    type: 'bar',
     direction?: Direction,
   },
 }

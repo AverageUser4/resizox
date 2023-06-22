@@ -1,4 +1,4 @@
-import { type ResizoxElement, type ResizoxOptions, type Target } from "./misc/types";
+import { type ResizoxContainerElement, type ResizoxOptions, type Target } from "./misc/types";
 import { onPointerDown } from "./misc/event-listeners";
 import { defaultOptions, canUserHover, cursorStyle } from './misc/data';
 import { getGeneralStyle } from "./misc/style";
@@ -11,15 +11,15 @@ const generalStyle = document.createElement('style');
 document.head.append(generalStyle);
 generalStyle.innerHTML = getGeneralStyle(defaultOptions);
 
-export function makeResizable(elements: ResizoxElement[], options: ResizoxOptions): void;
-export function makeResizable(element: ResizoxElement, options: ResizoxOptions): void;
+export function makeResizable(elements: HTMLElement[], options: ResizoxOptions): void;
+export function makeResizable(element: HTMLElement, options: ResizoxOptions): void;
 export function makeResizable(selector: string, options: ResizoxOptions): void;
 export function makeResizable(target: Target, options: ResizoxOptions = {}): void {
-  let usedElements: ResizoxElement[];
+  let usedElements: ResizoxContainerElement[];
   const usedOptions: ResizoxOptions = { ...defaultOptions, ...options };
 
   if(typeof target === 'string') {
-    usedElements = <ResizoxElement[]>[...document.querySelectorAll(target)];
+    usedElements = <ResizoxContainerElement[]>[...document.querySelectorAll(target)];
   } else if(!Array.isArray(target)) {
     usedElements = [target];
   } else {
@@ -34,9 +34,7 @@ export function makeResizable(target: Target, options: ResizoxOptions = {}): voi
       element.style.maxHeight = '100%';
     }
     element._resizoxOptions = usedOptions;
-    element._resizoxData = {
-      offset: { x: 0, y: 0 },
-    };
+    element._resizoxData = { type: 'container' };
     element.addEventListener('pointerdown', onPointerDown);
   }
 }

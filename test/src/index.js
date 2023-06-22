@@ -6,7 +6,7 @@ function addResizable(options = {}) {
   const resizable = document.createElement('div');
   resizable.className = 'resizable';
   container.append(resizable);
-  resizox.makeResizable(resizable, options);
+  resizox.makeResizable(resizable, { ...options, _debug_isShowBars: true });
 }
 
 addResizable();

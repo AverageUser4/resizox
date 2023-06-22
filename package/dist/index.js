@@ -31,9 +31,7 @@ function makeResizable(target, options = {}) {
             element.style.maxHeight = '100%';
         }
         element._resizoxOptions = usedOptions;
-        element._resizoxData = {
-            offset: { x: 0, y: 0 },
-        };
+        element._resizoxData = { type: 'container' };
         element.addEventListener('pointerdown', event_listeners_1.onPointerDown);
     }
 }

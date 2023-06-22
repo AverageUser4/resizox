@@ -1,56 +1,60 @@
-import { ResizoxBarElement, type ResizoxElement } from "./types";
+import { ResizoxBarElement, type ResizoxContainerElement } from "./types";
 import { resizedElement, defaultOptions, cursorStyle, canUserHover } from "./data";
 import { getCursorStyle, getDirection, clamp } from "../utils/utils";
 
 export function onPointerDown(event: PointerEvent) {
-  const target = <ResizoxElement | ResizoxBarElement>event.currentTarget;
+  const currentTarget = <ResizoxContainerElement>event.currentTarget;
+  const target = <ResizoxContainerElement | ResizoxBarElement>event.target;
 
-  if(!target._resizoxData) {
-    console.error('ResizoxError: _resizoxData should always be set here.');
+  if(!currentTarget._resizoxData || target._resizoxData?.type !== 'bar') {
+    !currentTarget._resizoxData && console.error('ResizoxError: _resizoxData should always be set here.');
     return;
   }
 
-  target._resizoxData.direction = getDirection(event);
-  
-  if(target._resizoxData.direction) {
-    resizedElement.current = target;
-    // target._resizoxData.offset = {
-    //   x: event.offsetX,
-    //   y: event.offsetY
-    // };
-    if(canUserHover) {
-      cursorStyle.innerHTML = getCursorStyle(target._resizoxData.direction);
-    }
-    window.addEventListener('pointermove', onPointerMove);
-    window.addEventListener('pointerup', onPointerUp);
+  resizedElement.current = currentTarget;
+  currentTarget._resizoxData.currentDirection = getDirection(event);
+  currentTarget._resizoxData.offset = {
+    x: event.offsetX,
+    y: event.offsetY
+  };
+  if(canUserHover) {
+    cursorStyle.innerHTML = getCursorStyle(currentTarget._resizoxData.currentDirection);
   }
+  window.addEventListener('pointermove', onPointerMove);
+  window.addEventListener('pointerup', onPointerUp);
 }
 
 export function onPointerMove(event: PointerEvent) {
-  if(resizedElement.current) {
-    const { clientX, clientY } = event;
-    const target = resizedElement.current;
-    const targetRect = target.getBoundingClientRect();
+  if(!resizedElement.current) {
+    console.error('resizedElement.current should always be set here.');
+    return;
+  }
 
-    if(!target._resizoxOptions || !target._resizoxData) {
-      console.error('ResizoxError: _resizoxData and _resizoxOptions should always be set here.');
-      return;
-    }
+  const { clientX, clientY } = event;
+  const target = resizedElement.current;
+  const targetRect = target.getBoundingClientRect();
 
-    const options = { ...defaultOptions, ...target._resizoxOptions };
+  if(!target._resizoxOptions || !target._resizoxData) {
+    console.error('ResizoxError: _resizoxData and _resizoxOptions should always be set here.');
+    return;
+  }
 
-    if(target._resizoxData.direction?.includes('Right')) {
-      let newWidth = clientX - targetRect.x;
-      // newWidth -= (barSize - barSize.offsetX)
-      // newWidth -= barOffset
-      newWidth = clamp(options.minWidth, newWidth, options.maxWidth);
-      target.style.width = `${newWidth}px`;
-    }
-    if(target._resizoxData.direction?.includes('Bottom')) {
-      let newHeight = clientY - targetRect.y;
-      newHeight = clamp(options.minHeight, newHeight, options.maxHeight);
-      target.style.height = `${newHeight}px`;
-    }
+  const options = { ...defaultOptions, ...target._resizoxOptions };
+  const { barSize, barOffset } = options;
+
+  if(target._resizoxData.currentDirection?.includes('Right')) {
+    let newWidth = clientX - targetRect.x;
+    newWidth += (barSize - (target._resizoxData.offset?.x || 0));
+    newWidth -= barOffset
+    newWidth = clamp(options.minWidth, newWidth, options.maxWidth);
+    target.style.width = `${newWidth}px`;
+  }
+  if(target._resizoxData.currentDirection?.includes('Bottom')) {
+    let newHeight = clientY - targetRect.y;
+    newHeight += (barSize - (target._resizoxData.offset?.y || 0));
+    newHeight -= barOffset;
+    newHeight = clamp(options.minHeight, newHeight, options.maxHeight);
+    target.style.height = `${newHeight}px`;
   }
 }
 
