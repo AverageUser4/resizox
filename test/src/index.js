@@ -18,16 +18,17 @@ function addResizable(textContent = '', options = {}, isConstrainedByParent) {
 
   resizox.makeResizable(resizable, { 
     ...options,
-    _debug_isShowBars: true 
+    _debug_isShowBars: true,
+    directions: 'All'
   });
 }
 
 addResizable('default options');
-addResizable('small barSize', { barSize: 10 });
-addResizable('big barSize', { barSize: 40 });
-addResizable('barSize = barOffset', { barSize: 20, barOffset: 20 });
-addResizable('big barOffset', { barOffset: 40 });
-addResizable('negative barOffset', { barOffset: -20 });
+// addResizable('small barSize', { barSize: 10 });
+// addResizable('big barSize', { barSize: 40 });
+// addResizable('barSize = barOffset', { barSize: 20, barOffset: 20 });
+// addResizable('big barOffset', { barOffset: 40 });
+// addResizable('negative barOffset', { barOffset: -20 });
 addResizable('constrained by parent', {}, true);
 addResizable('not constrained', { constrainingElement: null });
 addResizable('maxWidth: 150, maxHeight: 400', { maxWidth: 150, maxHeight: 400 });

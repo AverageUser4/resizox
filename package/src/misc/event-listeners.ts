@@ -33,9 +33,9 @@ export function onPointerMove(event: PointerEvent) {
   const { clientX, clientY } = event;
   const target = resizedElement.current;
   const targetRect = target.getBoundingClientRect();
-  
+
   if(!target._resizoxOptions || !target._resizoxData) {
-    console.error('ResizoxError: _resizoxData and _resizoxOptions should always be set here.');
+    console.error('ResizoxError: _resizoxData, _resizoxOptions and _resizoxData.initial should always be set here.');
     return;
   }
 
@@ -55,6 +55,26 @@ export function onPointerMove(event: PointerEvent) {
     newHeight -= barOffset;
     newHeight = getConstrainedSize(target, newHeight, 'Height', options);
     target.style.height = `${newHeight}px`;
+  }
+
+  if(target._resizoxData.currentDirection?.includes('Left')) {
+    // let newWidth = clientX - targetRect.x;
+    // newWidth += (barSize - (target._resizoxData.offset?.x || 0));
+    // newWidth -= barOffset;
+    // newWidth = getConstrainedSize(target, newWidth, 'Width', options);
+    // target.style.width = `${newWidth}px`;
+    let currentLeft = parseInt(target.style.left) || 0;
+    let newLeft = currentLeft - (targetRect.x - clientX);
+
+    let newWidth = targetRect.right - clientX;
+    if(newWidth > options.maxWidth) {
+      console.log(newWidth, options.maxWidth)
+      newWidth = options.maxWidth;
+      newLeft = currentLeft - (newWidth - targetRect.width);
+    }
+
+    target.style.left = `${newLeft}px`;
+    target.style.width = `${newWidth}px`;
   }
 }
 
