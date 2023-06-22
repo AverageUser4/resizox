@@ -4,24 +4,42 @@ export function clamp(min: number, actual: number, max: number): number {
   return Math.max(Math.min(actual, max), min);
 };
 
-export function getBars(options: ResizoxOptions): ResizoxBarElement[] {
+export function getBars(options: ResizoxRequiredOptions): ResizoxBarElement[] {
   const { barSize, barOffset } = options;
   const bars: ResizoxBarElement[] = [];
-  const directions: Direction[] = ['Bottom', 'Right', 'BottomRight'];
-  const colors = ['rgba(255, 0, 0, 0.7)', 'rgba(0, 255, 0, 0.7)', 'rgba(0, 0, 255, 0.7)'];
+  let directions: Direction[] = [];
+  if(options.directions === 'All') {
+    directions = ['Bottom', 'Top', 'Right', 'Left', 'BottomRight', 'BottomLeft', 'TopRight', 'TopLeft'];
+  } else if(options.directions === 'Basic') {
+    directions = ['Bottom', 'Right', 'BottomRight'];
+  } else {
+    directions = options.directions;
+  }
+  
+  const colors = {
+    '': '',
+    'Bottom': 'rgba(255, 0, 0, 0.7)',
+    'Top': 'rgba(255, 0, 0, 0.7)',
+    'Left': 'rgba(0, 255, 0, 0.7)',
+    'Right': 'rgba(0, 255, 0, 0.7)',
+    'BottomRight': 'rgba(0, 0, 255, 0.7)',
+    'BottomLeft': 'rgba(0, 0, 255, 0.7)',
+    'TopRight': 'rgba(0, 0, 255, 0.7)',
+    'TopLeft': 'rgba(0, 0, 255, 0.7)',
+  };
 
-  for(let i = 0; i < directions.length; i++) {
+  for(let direction of directions) {
     const bar = <ResizoxBarElement>document.createElement('div');
-    bar.className = `resizox-bar resizox-${directions[i]}`;
+    bar.className = `resizox-bar resizox-${direction}`;
     bar.style.setProperty('--bar-size', `${barSize}px`);
     bar.style.setProperty('--bar-offset', `${barOffset}px`);
     bar.style.userSelect = 'none';
     if(options._debug_isShowBars) {
-      bar.style.backgroundColor = colors[i];
+      bar.style.backgroundColor = colors[direction];
     }
     bar._resizoxData = { 
       type: 'bar',
-      direction: directions[i],
+      direction: direction,
     };
     bars.push(bar);
   }
@@ -41,8 +59,13 @@ export function getCursorStyle(direction: Direction): string {
   const map = {
     '': '',
     'Bottom': 's',
+    'Top': 'n',
+    'Left': 'w',
     'Right': 'e',
     'BottomRight': 'se',
+    'BottomLeft': 'sw',
+    'TopRight': 'ne',
+    'TopLeft': 'nw',
   };
 
   const mapped = map[direction];
@@ -51,19 +74,14 @@ export function getCursorStyle(direction: Direction): string {
 
 export function getConstrainedSize(target: ResizoxContainerElement, size: number, sizeType: 'Width' | 'Height', options: ResizoxRequiredOptions): number {
   const targetRect = target.getBoundingClientRect();
-  const parentRect = target.parentElement?.getBoundingClientRect();
-
-  if(!parentRect) {
-    console.error('ResizoxError: parentRect should always be set here.');
-    return 0;
-  }
+  const constrainingRect = options.constrainingElement?.getBoundingClientRect();
 
   let coord: 'x' | 'y' = sizeType === 'Width' ? 'x' : 'y';
 
   size = clamp(options[`min${sizeType}`], size, options[`max${sizeType}`]);
-  if(options.isConstrained) {
-    size = Math.min(size, parentRect[<'width' | 'height'>sizeType.toLowerCase()] - 
-      (targetRect[coord] - parentRect[coord]));
+  if(constrainingRect) {
+    size = Math.min(size, constrainingRect[<'width' | 'height'>sizeType.toLowerCase()] - 
+      (targetRect[coord] - constrainingRect[coord]));
   }
 
   return size;

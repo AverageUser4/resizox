@@ -2,7 +2,7 @@ export type Concrete<Type> = {
   [Property in keyof Type]-?: Type[Property];
 };
 export type Target = HTMLElement[] | HTMLElement | string;
-export type NonEmptyDirection = 'Bottom' | 'Right' | 'BottomRight';
+export type NonEmptyDirection = 'Bottom' | 'Top' | 'Right' | 'Left' | 'BottomRight' | 'BottomLeft' | 'TopRight' | 'TopLeft';
 export type Direction = '' | NonEmptyDirection;
 export type ResizoxOptions = {
   barSize?: number,
@@ -11,7 +11,7 @@ export type ResizoxOptions = {
   maxWidth?: number,
   minHeight?: number,
   maxHeight?: number,
-  isConstrained?: boolean,
+  constrainingElement?: HTMLElement | null,
   directions?: NonEmptyDirection[] | 'Basic' | 'All',
   _debug_isShowBars?: boolean,
 };

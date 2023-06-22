@@ -33,12 +33,7 @@ export function onPointerMove(event: PointerEvent) {
   const { clientX, clientY } = event;
   const target = resizedElement.current;
   const targetRect = target.getBoundingClientRect();
-  const parentRect = target.parentElement?.getBoundingClientRect();
-
-  if(!parentRect) {
-    console.error('ResizoxError: resized element should always have parent element (this should not happen).')
-    return;
-  }
+  
   if(!target._resizoxOptions || !target._resizoxData) {
     console.error('ResizoxError: _resizoxData and _resizoxOptions should always be set here.');
     return;

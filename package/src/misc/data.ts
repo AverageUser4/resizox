@@ -7,7 +7,7 @@ export const defaultOptions: ResizoxRequiredOptions = {
   maxWidth: 2000,  
   minHeight: 50,
   maxHeight: 1400,
-  isConstrained: false,
+  constrainingElement: document.body,
   directions: 'Basic',
   _debug_isShowBars: false,
 };
